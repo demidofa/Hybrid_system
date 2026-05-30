@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Оптимизация гибридной энергосистемы — разбор для инженеров</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f6f3; --surface:#ffffff; --ink:#171717; --muted:#6a6a6a;
+    --line:#e7e7e2; --soft:#f0f0eb;
+    --purple:#6c5ce7; --purple-bg:#f0edfd;
+    --green:#159a5b; --green-bg:#e9f8f0;
+    --blue:#2f74e0; --blue-bg:#eaf2fe;
+    --orange:#e0820f; --orange-bg:#fdf2e2;
+    --radius:18px; --radius-sm:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+    line-height:1.62;font-size:16.5px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(246,246,243,.82);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+    padding-top:12px;padding-bottom:12px}
+  nav a{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 12px;
+    border-radius:999px;transition:.18s;white-space:nowrap}
+  nav a:hover{background:var(--soft);color:var(--ink)}
+  nav .brand{font-weight:700;color:var(--ink);font-size:14px;margin-right:6px}
+
+  /* hero */
+  header{position:relative;overflow:hidden;padding:78px 0 56px}
+  .blob{position:absolute;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #b9aef7, #6c5ce7 60%, transparent 72%);
+    filter:blur(46px);opacity:.32;top:-160px;right:-120px;z-index:0;
+    animation:float 16s ease-in-out infinite}
+  .blob.two{background:radial-gradient(circle at 40% 40%,#ffd27a,#e0820f 60%,transparent 72%);
+    width:360px;height:360px;top:120px;right:240px;opacity:.20;animation-duration:21s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(-34px,34px) scale(1.08)}}
+  header .wrap{position:relative;z-index:1}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .pill{font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:999px}
+  .pill.dark{background:var(--ink);color:#fff}
+  .pill.line{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .pill.pur{background:var(--purple-bg);color:var(--purple)}
+  h1{font-size:43px;font-weight:800;letter-spacing:-.02em;line-height:1.08;margin-bottom:18px}
+  .lead{font-size:18.5px;color:#3a3a3a;max-width:680px}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:14px 18px;min-width:150px}
+  .stat .v{font-size:25px;font-weight:800;letter-spacing:-.01em}
+  .stat .v.pur{color:var(--purple)} .stat .v.grn{color:var(--green)}
+  .stat .k{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+  /* sections */
+  section{padding:42px 0;border-top:1px solid var(--line)}
+  .kicker{font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--purple);margin-bottom:9px}
+  h2{font-size:28px;font-weight:800;letter-spacing:-.015em;margin-bottom:14px}
+  h3{font-size:18px;font-weight:700;margin:24px 0 8px}
+  p{margin-bottom:14px}
+  .step{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+    border-radius:50%;background:var(--ink);color:#fff;font-size:14px;font-weight:700;
+    margin-right:10px;vertical-align:middle}
+
+  /* cards */
+  .card{border-radius:var(--radius);padding:20px 22px;margin:16px 0;border:1px solid var(--line);
+    background:var(--surface)}
+  .card.method{border:none}
+  .card .tag{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px}
+  .green{background:var(--green-bg)} .green .tag{background:var(--green);color:#fff}
+  .purple{background:var(--purple-bg)} .purple .tag{background:var(--purple);color:#fff}
+  .blue{background:var(--blue-bg)} .blue .tag{background:var(--blue);color:#fff}
+  .orange{background:var(--orange-bg)} .orange .tag{background:var(--orange);color:#fff}
+  .card h4{font-size:16.5px;font-weight:700;margin-bottom:6px}
+  .card p:last-child{margin-bottom:0}
+
+  /* tip */
+  .tip{border-left:3px solid var(--purple);background:var(--surface);
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 18px;margin:16px 0;
+    font-size:15px}
+  .tip b{color:var(--purple)}
+
+  /* pipeline */
+  .pipeline{background:var(--ink);border-radius:var(--radius);padding:24px;margin:20px 0;color:#eee}
+  .pipeline .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+  .pipeline .flow:last-child{margin-bottom:0}
+  .plabel{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9aa0a6;width:100%;margin-top:4px}
+  .node{background:#2a2a2a;border:1px solid #3a3a3a;border-radius:999px;padding:8px 15px;
+    font-size:13.5px;font-weight:600;color:#fff}
+  .node.bus{background:var(--ink);border:2px solid #8a7ff0;color:#fff}
+  .node.acc{background:var(--purple);border-color:var(--purple)}
+  .arr{color:#8a7ff0;font-weight:800}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;
+    background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+  th,td{padding:12px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--soft);font-weight:700;font-size:13px;letter-spacing:.02em}
+  tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 11px;border-radius:999px}
+  .b-grn{background:var(--green-bg);color:var(--green)}
+  .b-blu{background:var(--blue-bg);color:var(--blue)}
+  .b-ora{background:var(--orange-bg);color:var(--orange)}
+  .b-gry{background:var(--soft);color:var(--muted)}
+  code{background:var(--soft);padding:1.5px 6px;border-radius:6px;font-size:14px;
+    font-family:'SF Mono',Menlo,monospace}
+  .muted{color:var(--muted)}
+  /* formulas (self-contained, no external renderer) */
+  .formula{background:var(--soft);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:16px 20px;margin:14px 0;font-family:Georgia,'Times New Roman',serif;font-size:17.5px;
+    line-height:2.1;text-align:center;overflow-x:auto}
+  .formula i{font-style:italic}
+  .frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .3em}
+  .frac span{padding:2px .55em}
+  .frac .num{border-bottom:1.6px solid currentColor}
+  .fl{display:block;font-family:'Inter',system-ui,sans-serif;font-size:12.5px;color:var(--muted);
+    font-style:normal;margin-top:5px;line-height:1.45}
+  footer{padding:40px 0 70px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="brand">Гибридная система · разбор</span>
+  <a href="#task">Задача</a>
+  <a href="#profiles">Профили</a>
+  <a href="#econ">Экономика</a>
+  <a href="#opt">Что оптимизируем</a>
+  <a href="#result">Результат</a>
+  <a href="#dispatch">Диспетчеризация</a>
+  <a href="#sens">Чувствительность</a>
+  <a href="#glossary">Методы</a>
+</div></nav>
+
+<header>
+  <div class="blob"></div><div class="blob two"></div>
+  <div class="wrap">
+    <div class="pills">
+      <span class="pill dark">Курс · Системный капстоун</span>
+      <span class="pill line">Разбор для инженеров</span>
+      <span class="pill pur">линейное программирование (PuLP)</span>
+    </div>
+    <h1>Оптимизация гибридной<br>энергосистемы</h1>
+    <p class="lead">Финал курса — про проектирование, а не предсказание: как из Солнечных панелей, ВЭУ и
+      АКБ собрать систему, покрывающую нагрузку с минимальной стоимостью. </p>
+    <div class="stats">
+      <div class="stat"><div class="v pur">−28%</div><div class="k">экономия гибрида против «только сеть»</div></div>
+      <div class="stat"><div class="v grn">83%</div><div class="k">самообеспечение оптимального состава</div></div>
+      <div class="stat"><div class="v">LP</div><div class="k">линейное программирование, не машинное обучение</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1 -->
+<section id="task">
+  <div class="kicker">Шаг 1 · Постановка</div>
+  <h2><span class="step">1</span>Проектирование как задача оптимизации</h2>
+  <p>Все предыдущие занятия были про <b>предсказание</b> (выработка, неисправности, ресурс). Финал —
+    про <b>проектирование</b>: из изученных кирпичиков (солнце, ветер, накопитель) собрать систему,
+    которая покрывает нагрузку предприятия с <b>минимальной стоимостью</b>.</p>
+  <p>Это другой класс задач — <b>оптимизация</b>, а не машинное обучение. Мы задаём, во что обходится
+    каждый киловатт мощности и киловатт-час хранения, и просим решатель найти и оптимальный состав
+    системы, и почасовой режим её работы. Солнечный профиль берём из реального Plant_1 (для
+    преемственности с солнечным занятием), ветер и нагрузку моделируем простыми, но реалистичными
+    кривыми.</p>
+  <div class="card method blue">
+    <span class="tag">Метод · Линейное программирование (LP)</span>
+    <h4>Краткие сведения</h4>
+    <p>Линейное программирование — это способ найти <b>наилучшие значения</b> набора переменных
+      (что построить и как этим пользоваться), которые минимизируют заданную стоимость и при этом не
+      нарушают ни одного физического ограничения. Все связи в задаче линейные, поэтому решатель умеет
+      гарантированно находить глобальный минимум, перебирая не вслепую, а математически. Здесь
+      используется библиотека <code>PuLP</code> с открытым решателем CBC.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="profiles">
+  <div class="kicker">Шаг 2 · Профили</div>
+  <h2><span class="step">2</span>Когда энергия есть и когда она нужна</h2>
+  <p>Всё сводим к часовому ряду на период (~34 суток). Три кривые:</p>
+  <div class="card method orange">
+    <span class="tag">Понятие · КИУМ</span>
+    <h4>Коэффициент использования мощности</h4>
+    <p>Солнце и ветер задаются не в киловаттах, а в <b>КИУМ</b> — доле от номинала: сколько реально
+      даёт 1 кВт установленной мощности в данный час (0…1). Средний КИУМ за период: солнце <b>0,24</b>,
+      ветер <b>0,20</b>. Солнечный профиль — реальный (из Plant_1), ветер — модель со слабым суточным
+      ходом (чуть сильнее ночью).</p>
+  </div>
+  <p>Нагрузка — типовой двугорбый профиль предприятия (утренний и вечерний пики): средняя
+    <b>1383 кВт</b>, пик <b>2108 кВт</b>. Ключевая картина: солнце сосредоточено в полдень, спрос — утром
+    и вечером, и между ними есть разрыв.</p>
+  <div class="tip"><b>Зачем тут АКБ.</b> Вечерний пик спроса приходится на время, когда солнца уже
+    нет. Именно этот разрыв во времени между «когда есть энергия» и «когда она нужна» и должен закрыть
+    аккумулятор — сдвигая дневную энергию на вечер. А ветер с другим суточным ходом дополняет солнце:
+    два источника с разным расписанием закрывают сутки лучше, чем один.</div>
+</section>
+
+<!-- 3 -->
+<section id="econ">
+  <div class="kicker">Шаг 3 · Экономика</div>
+  <h2><span class="step">3</span>Сколько стоит киловатт-час из каждого источника</h2>
+  <p>Капитальные затраты (CAPEX) разовые, а счёт за сеть — ежегодный. Чтобы сравнивать их в одной
+    размерности, разовый CAPEX превращают в эквивалентный годовой платёж.</p>
+  <div class="card method purple">
+    <span class="tag">Метод · CRF (фактор возврата капитала)</span>
+    <h4>Как разовую стоимость перевести в годовую</h4>
+    <p>CRF — это коэффициент, превращающий разовую сумму в равный ежегодный платёж за срок службы,
+      как аннуитет по кредиту при заданной ставке. При ставке 7% и сроке 20 лет CRF ≈ <b>0,094</b> —
+      то есть каждый вложенный рубль «стоит» около 9,4 копейки в год.</p>
+  </div>
+  <div class="formula">
+    CRF = <span class="frac"><span class="num"><i>r</i> (1 + <i>r</i>)<sup><i>N</i></sup></span><span class="den">(1 + <i>r</i>)<sup><i>N</i></sup> − 1</span></span>
+    <span class="fl"><i>r</i> — ставка дисконта, <i>N</i> — срок службы (лет). Годовой платёж = CAPEX × CRF. При <i>r</i> = 0,07 и <i>N</i> = 20 → CRF ≈ 0,094.</span>
+  </div>
+  <div class="card method green">
+    <span class="tag">Метод · LCOE (приведённая стоимость энергии)</span>
+    <h4>Цена киловатт-часа от источника</h4>
+    <p>Если годовой платёж за 1 кВт разделить на то, сколько этот киловатт выработает за год (через
+      КИУМ), получится <b>LCOE</b> — честная цена киловатт-часа от источника. Это и есть «линейка»,
+      которой пользуется решатель: в каждый час он сравнивает, что дешевле — свой киловатт-час солнца,
+      ветра, разряд АКБ или импорт из сети.</p>
+  </div>
+  <div class="formula">
+    LCOE = <span class="frac"><span class="num">CAPEX × CRF</span><span class="den">КИУМ × 8760</span></span> &nbsp; [₽/кВт·ч]
+    <span class="fl">годовой платёж за 1 кВт, делённый на годовую выработку этого киловатта (8760 — часов в году)</span>
+  </div>
+  <table>
+    <tr><th>Источник</th><th>Цена киловатт-часа (LCOE)</th></tr>
+    <tr><td>Солнце (ПВ)</td><td><span class="badge b-grn">2,70 ₽/кВт·ч</span></td></tr>
+    <tr><td>Ветер</td><td><span class="badge b-blu">5,87 ₽/кВт·ч</span></td></tr>
+    <tr><td>Сеть (импорт)</td><td><span class="badge b-ora">9,00 ₽/кВт·ч</span></td></tr>
+  </table>
+  <p class="muted">Цены — по ориентирам РФ 2025-2026: ПВ 60 000 ₽/кВт, ветер 110 000 ₽/кВт, литий
+    28 000 ₽/кВт·ч, тариф сети 9 ₽/кВт·ч (промышленный потребитель). Свой киловатт-час дешевле
+    сетевого — но солнце светит не всегда, и за этот сдвиг во времени платят батареей.</p>
+</section>
+
+<!-- 4 -->
+<section id="opt">
+  <div class="kicker">Шаг 4 · Что оптимизируем</div>
+  <h2><span class="step">4</span>Переменные, цель и ограничения</h2>
+  <p>Прежде чем запускать решатель, нужно ясно понимать, что у задачи на входе, что на выходе и по
+    какому правилу выбирается «лучшее». Каждый час энергия течёт через общую шину: слева приходит,
+    справа уходит, и приход обязан равняться расходу — это закон сохранения.</p>
+  <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 14px;margin:16px 0;overflow-x:auto">
+    <svg viewBox="0 0 880 480" style="width:100%;min-width:680px;height:auto;font-family:'Inter',system-ui,sans-serif" role="img" aria-label="Структурная схема энергопотоков модели оптимизации">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#6b7280"/>
+        </marker>
+        <marker id="ahp" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#6c5ce7"/>
+        </marker>
+      </defs>
+
+      <text x="440" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#171717">ПРИХОД  =  РАСХОД — баланс мощности в каждый час t</text>
+      <text x="137" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#9aa0a6" letter-spacing="1">ПРИХОД</text>
+      <text x="743" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#9aa0a6" letter-spacing="1">РАСХОД</text>
+
+      <!-- arrows source -> bus -->
+      <line x1="245" y1="96"  x2="381" y2="112" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+      <line x1="245" y1="168" x2="381" y2="176" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+      <line x1="245" y1="240" x2="381" y2="240" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+      <line x1="245" y1="312" x2="381" y2="304" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+      <!-- arrows bus -> sink -->
+      <line x1="499" y1="112" x2="631" y2="114" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+      <line x1="499" y1="186" x2="631" y2="204" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+      <line x1="499" y1="250" x2="631" y2="292" stroke="#6b7280" stroke-width="2" marker-end="url(#ah)"/>
+
+      <!-- battery loop -->
+      <path d="M742,230 C742,308 655,388 567,396" fill="none" stroke="#6c5ce7" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahp)"/>
+      <path d="M300,396 C205,388 152,366 138,342" fill="none" stroke="#6c5ce7" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahp)"/>
+      <text x="648" y="350" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6c5ce7">заряд</text>
+      <text x="214" y="372" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6c5ce7">разряд</text>
+
+      <!-- LEFT: sources -->
+      <rect x="30" y="70"  width="215" height="52" rx="12" fill="#e0820f"/>
+      <text x="137" y="92"  text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Солнце</text>
+      <text x="137" y="110" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">Pпв · CF_сол(t)</text>
+      <rect x="30" y="142" width="215" height="52" rx="12" fill="#2f74e0"/>
+      <text x="137" y="164" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Ветер</text>
+      <text x="137" y="182" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">Pвет · CF_вет(t)</text>
+      <rect x="30" y="214" width="215" height="52" rx="12" fill="#e63946"/>
+      <text x="137" y="236" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Импорт из сети</text>
+      <text x="137" y="254" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">gi(t)</text>
+      <rect x="30" y="286" width="215" height="52" rx="12" fill="#6c5ce7"/>
+      <text x="137" y="308" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Разряд АКБ</text>
+      <text x="137" y="326" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">di(t)</text>
+
+      <!-- CENTER: bus -->
+      <rect x="385" y="70" width="110" height="268" rx="14" fill="#171717" stroke="#6c5ce7" stroke-width="2"/>
+      <text x="440" y="196" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">ШИНА</text>
+      <text x="440" y="218" text-anchor="middle" font-size="11.5" fill="#cfcfcf">баланс</text>
+      <text x="440" y="234" text-anchor="middle" font-size="11.5" fill="#cfcfcf">каждый час</text>
+
+      <!-- RIGHT: sinks -->
+      <rect x="635" y="88"  width="215" height="52" rx="12" fill="#1f1f1f"/>
+      <text x="742" y="110" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Нагрузка</text>
+      <text x="742" y="128" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">load(t)</text>
+      <rect x="635" y="178" width="215" height="52" rx="12" fill="#6c5ce7"/>
+      <text x="742" y="200" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Заряд АКБ</text>
+      <text x="742" y="218" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">ch(t)</text>
+      <rect x="635" y="268" width="215" height="52" rx="12" fill="#9aa0a6"/>
+      <text x="742" y="290" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Сброс излишка</text>
+      <text x="742" y="308" text-anchor="middle" font-size="12" fill="#fff" opacity=".92">cur(t)</text>
+
+      <!-- BOTTOM: battery store -->
+      <rect x="300" y="388" width="280" height="52" rx="12" fill="#f0edfd" stroke="#6c5ce7" stroke-width="1.5"/>
+      <text x="440" y="410" text-anchor="middle" font-size="14" font-weight="700" fill="#6c5ce7">Аккумулятор</text>
+      <text x="440" y="428" text-anchor="middle" font-size="12" fill="#6c5ce7">состояние заряда SoC ≤ Eбат</text>
+      <text x="440" y="462" text-anchor="middle" font-size="12" fill="#6a6a6a">накопитель сдвигает энергию во времени: заряд днём → разряд на вечерний пик</text>
+    </svg>
+  </div>
+  <p class="muted">Как читать схему: слева — откуда энергия приходит на общую шину, справа — куда она
+    уходит; в каждый час приход обязан равняться расходу. Фиолетовая петля — накопитель: лишняя дневная
+    энергия идёт в заряд, а вечером возвращается разрядом. Решатель выбирает мощности ПВ и ветра и
+    ёмкость АКБ (состав) и все почасовые потоки (режим), минимизируя суммарную стоимость.</p>
+  <p>Решатель ищет переменные двух видов:</p>
+  <div class="card method blue">
+    <span class="tag">Переменные · Состав</span>
+    <h4>Что построить — 3 числа на весь период</h4>
+    <p>Мощность ПВ (кВт), мощность ветра (кВт) и ёмкость аккумулятора (кВт·ч). Это капитальное
+      решение: один набор чисел на всю систему.</p>
+  </div>
+  <div class="card method purple">
+    <span class="tag">Переменные · Режим</span>
+    <h4>Как этим пользоваться — 5 чисел на каждый час</h4>
+    <p>Заряд и разряд АКБ, состояние заряда (SoC), импорт из сети и сброс излишка. Так задаётся
+      почасовая работа системы на весь период.</p>
+  </div>
+  <div class="card green">
+    <span class="tag">Цель</span>
+    <h4>Что минимизируем</h4>
+    <p>Суммарную годовую стоимость = приведённые капзатраты на состав (через CRF) плюс годовой счёт за
+      импорт из сети. Ограничения на каждый час: баланс энергии (приход = расход); динамика заряда
+      АКБ (SoC растёт при заряде, падает при разряде, с учётом КПД, цикл за период замкнут);
+      ёмкость и мощность АКБ не превышены.</p>
+  </div>
+  <h3>Та же модель — формально</h3>
+  <div class="formula">
+    min &nbsp; (<i>P</i><sub>пв</sub><i>c</i><sub>пв</sub> + <i>P</i><sub>вет</sub><i>c</i><sub>вет</sub> + <i>E</i><sub>бат</sub><i>c</i><sub>бат</sub>) · CRF &nbsp; + &nbsp; <i>k</i> &nbsp;<span style="font-size:22px">Σ</span><sub><i>t</i></sub> <i>gi</i><sub><i>t</i></sub> · <i>p</i><sub>сеть</sub>
+    <span class="fl">целевая функция: приведённые капзатраты (₽/год) + годовой счёт за импорт; <i>c</i> — удельные CAPEX, <i>k</i> = year_scale</span>
+  </div>
+  <div class="formula" style="text-align:left">
+    <div style="margin:10px 0"><i>P</i><sub>пв</sub>·CF<sup>сол</sup><sub><i>t</i></sub> + <i>P</i><sub>вет</sub>·CF<sup>вет</sup><sub><i>t</i></sub> + <i>di</i><sub><i>t</i></sub> + <i>gi</i><sub><i>t</i></sub> = <i>load</i><sub><i>t</i></sub> + <i>ch</i><sub><i>t</i></sub> + <i>cur</i><sub><i>t</i></sub><span class="fl">баланс энергии: приход = расход (для каждого часа <i>t</i>)</span></div>
+    <div style="margin:10px 0"><i>soc</i><sub><i>t</i></sub> = <i>soc</i><sub><i>t</i>−1</sub> + <i>η</i> · <i>ch</i><sub><i>t</i></sub> − <i>di</i><sub><i>t</i></sub> / <i>η</i><span class="fl">динамика заряда (<i>η</i> — КПД); цикл замкнут: заряд на старте = заряду в конце</span></div>
+    <div style="margin:10px 0"><i>soc</i><sub><i>t</i></sub> ≤ <i>E</i><sub>бат</sub>, &nbsp;&nbsp; <i>ch</i><sub><i>t</i></sub> ≤ <i>E</i><sub>бат</sub> / <i>D</i>, &nbsp;&nbsp; <i>di</i><sub><i>t</i></sub> ≤ <i>E</i><sub>бат</sub> / <i>D</i><span class="fl">ёмкость и мощность АКБ (<i>D</i> — длительность разряда, ч)</span></div>
+    <div style="margin:10px 0"><i>P</i><sub>пв</sub>, <i>P</i><sub>вет</sub>, <i>E</i><sub>бат</sub> ≥ 0; &nbsp; <i>ch</i><sub><i>t</i></sub>, <i>di</i><sub><i>t</i></sub>, <i>soc</i><sub><i>t</i></sub>, <i>gi</i><sub><i>t</i></sub>, <i>cur</i><sub><i>t</i></sub> ≥ 0<span class="fl">все мощности, ёмкость и потоки неотрицательны</span></div>
+  </div>
+  <div class="tip"><b>Важная ловушка модели.</b> Доход от продажи излишка в сеть мы намеренно не
+    закладываем — излишек просто сбрасывается. Иначе задача стала бы <b>неограниченной</b>: было бы
+    выгодно строить бесконечно много панелей ради экспорта, и оптимум «улетел» бы в бесконечность.
+    Мораль: понимай модель, а не только запускай решатель.</div>
+</section>
+
+<!-- 5 -->
+<section id="result">
+  <div class="kicker">Шаг 5 · Результат</div>
+  <h2><span class="step">5</span>Что выгодно построить и сколько это экономит</h2>
+  <p>Решатель находит оптимальный состав и сразу — полную почасовую картину работы.</p>
+  <table>
+    <tr><th>Что построить</th><th>Оптимум</th></tr>
+    <tr><td>Солнечная станция (ПВ)</td><td><span class="badge b-ora">1794 кВт</span></td></tr>
+    <tr><td>Ветрогенерация</td><td><span class="badge b-blu">4078 кВт</span></td></tr>
+    <tr><td>Аккумулятор</td><td><span class="badge b-grn">2652 кВт·ч</span> (мощность 663 кВт)</td></tr>
+  </table>
+  <div class="card green">
+    <span class="tag">Итог</span>
+    <h4>78,1 млн ₽/год · самообеспечение 83%</h4>
+    <p>Годовая стоимость оптимального гибрида — 78,1 млн ₽. Своими источниками система закрывает 83%
+      спроса, остальное добирает из сети. Ветра в составе больше, чем солнца: при этих ценах его
+      круглосуточная выработка лучше ложится на спрос, хотя киловатт-час солнца дешевле.</p>
+  </div>
+  <h3>Из чего складывается стоимость</h3>
+  <table>
+    <tr><th>Статья</th><th>₽/год</th></tr>
+    <tr><td>Ветер — капзатраты</td><td><span class="badge b-blu">42,3 млн</span></td></tr>
+    <tr><td>Сеть — импорт</td><td><span class="badge b-ora">18,6 млн</span></td></tr>
+    <tr><td>ПВ — капзатраты</td><td><span class="badge b-gry">10,2 млн</span></td></tr>
+    <tr><td>Батарея — капзатраты</td><td><span class="badge b-gry">7,0 млн</span></td></tr>
+  </table>
+  <div class="card method orange">
+    <span class="tag">В чём выигрыш</span>
+    <h4>Гибрид против «купить всё из сети»</h4>
+    <p>Оптимизация имеет смысл только относительно альтернативы. Самая простая — ничего не строить и
+      весь спрос покрывать из сети: это обошлось бы в <b>109 млн ₽/год</b>. Оптимальный гибрид стоит
+      <b>78,1 млн ₽/год</b> — экономия <b>30,9 млн ₽/год (28%)</b>. Это конкретная цифра в рублях, а не
+      абстрактная «зелёность».</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="dispatch">
+  <div class="kicker">Шаг 6 · Диспетчеризация</div>
+  <h2><span class="step">6</span>Как АКБ сдвигает энергию во времени</h2>
+  <p>Состав найден — теперь видно, как решатель распоряжается им по часам. Базовая логика покрытия
+    нагрузки проста и физична:</p>
+  <div class="card method purple">
+    <span class="tag">Понятие · SoC и суточный цикл</span>
+    <h4>Заряд аккумулятора</h4>
+    <p>Днём солнце и ветер закрывают спрос и <b>заряжают</b> батарею (SoC растёт). Вечером, на пике
+      спроса без солнца, батарея <b>разряжается</b> (SoC падает), а сеть подхватывает лишь то, что не
+      закрыли свои источники. На графике состояния заряда это видно как характерная «пила»: заряд днём,
+      разряд вечером, день за днём. Именно так накопитель переносит дешёвую дневную энергию на дорогой
+      вечер.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="sens">
+  <div class="kicker">Шаг 7 · Чувствительность</div>
+  <h2><span class="step">7</span>Как цена хранения переворачивает выбор</h2>
+  <p>Главный системный вопрос: что меняется, когда хранение дешевеет? Перерешаем задачу при разных
+    ценах АКБ и смотрим на оптимальный состав и самообеспечение.</p>
+  <table>
+    <tr><th>Цена АКБ, ₽/кВт·ч</th><th>ПВ, кВт</th><th>Ветер, кВт</th><th>Батарея, кВт·ч</th><th>Самообесп.</th></tr>
+    <tr><td>55 000</td><td>1612</td><td>3226</td><td>0</td><td><span class="badge b-gry">66%</span></td></tr>
+    <tr><td>40 000</td><td>1621</td><td>3532</td><td>618</td><td><span class="badge b-gry">71%</span></td></tr>
+    <tr><td><b>28 000</b> (базовая)</td><td>1794</td><td>4078</td><td>2652</td><td><span class="badge b-blu">83%</span></td></tr>
+    <tr><td>18 000</td><td>3241</td><td>3203</td><td>8795</td><td><span class="badge b-grn">94%</span></td></tr>
+    <tr><td>9 000</td><td>6206</td><td><b>0</b></td><td>20 742</td><td><span class="badge b-grn">95%</span></td></tr>
+    <tr><td>4 500</td><td>6223</td><td><b>0</b></td><td>24 622</td><td><span class="badge b-grn">96%</span></td></tr>
+  </table>
+  <h3>Почему при дешёвой батарее ветер исчезает</h3>
+  <p>В таблице есть неожиданный поворот. Чем дешевле батарея, тем больше её ёмкость и выше
+    самообеспечение — это понятно. Но при очень дешёвой батарее <b>ветер падает до нуля</b> (с 4078 до
+    0 кВт), а солнце, наоборот, разрастается (с 1794 до 6206 кВт). Почему так?</p>
+  <p>Всё решает один вопрос: <b>кто закрывает вечер</b>, когда солнца уже нет, а спрос на пике.</p>
+  <div class="card method orange">
+    <span class="tag">Развилка</span>
+    <h4>Два способа закрыть вечер без солнца</h4>
+    <p><b>Ветер</b> дороже солнца за киловатт-час, зато вырабатывает круглосуточно — в том числе
+      вечером, прямо когда нужно. <b>Солнце</b> — самый дешёвый киловатт-час, но только днём; чтобы
+      использовать его вечером, дневной излишек надо где-то хранить, то есть нужна батарея.</p>
+  </div>
+  <p>• <b>Батарея дорогая.</b> Запасать энергию накладно, поэтому вечер дешевле закрыть ветром — он и
+    так генерирует в это время. Оптимум строит много ветра и мало хранения.</p>
+  <p>• <b>Батарея дешёвая.</b> Теперь выгоднее поставить панелей <b>с запасом</b>, днём накопить
+    излишек почти даром и отдать его вечером из АКБ. Это оказывается дешевле, чем платить за ветер.
+    Ветер становится не нужен и уходит в ноль, а мощность солнца резко растёт — ведь оно должно
+    покрыть теперь и дневное потребление, и вечерний запас.</p>
+  <div class="tip"><b>Вывод.</b> Цена АКБ определяет не «сколько добавить хранения», а <b>какую
+    генерацию выбрать</b>: ветер или «солнце с запасом + батарея». Этот неочевидный разворот решатель
+    находит сам и в числах — в этом и сила оптимизации.</div>
+</section>
+
+<!-- 8 -->
+<section id="takeaways">
+  <div class="kicker">Итоги</div>
+  <h2><span class="step">★</span>Что мы поняли</h2>
+  <p>• <b>Проектирование как оптимизация.</b> Состав системы и режим её работы находятся строго —
+    линейным программированием на минимум стоимости при физических ограничениях. Другой инструмент,
+    чем ML всего курса.</p>
+  <p>• <b>Кирпичики сходятся вместе.</b> Солнце (из реального Plant_1), ветер и аккумулятор впервые
+    работают как одна система: солнце и ветер дополняют друг друга по времени, батарея сдвигает
+    энергию с пика генерации на пик спроса.</p>
+  <p>• <b>Выигрыш измерим.</b> Гибрид дешевле сценария «только сеть» на 28% — конкретная годовая
+    экономия в рублях, а не абстрактная польза.</p>
+  <p>• <b>Экономика решает.</b> Оптимальный состав определяется ценами: дешевле хранение — больше
+    батарей и выше самообеспечение, а при очень дешёвой батарее ветер вытесняется переизбытком солнца.</p>
+  <p>• <b>Ловушки формулировки.</b> Неограниченная продажа в сеть сделала бы задачу бессмысленной —
+    поэтому важно понимать модель, а не только запускать решатель.</p>
+</section>
+
+<!-- glossary -->
+<section id="glossary">
+  <div class="kicker">Справочник</div>
+  <h2><span class="step">i</span>Использованные методы — коротко</h2>
+  <table>
+    <tr><th>Метод / понятие</th><th>Суть в одном предложении</th></tr>
+    <tr><td><b>Линейное программирование (LP)</b></td><td>поиск переменных, минимизирующих линейную стоимость при линейных ограничениях; даёт гарантированный оптимум.</td></tr>
+    <tr><td><b>PuLP / CBC</b></td><td>библиотека и открытый решатель, которыми задача формулируется и решается.</td></tr>
+    <tr><td><b>КИУМ</b></td><td>коэффициент использования: какую долю номинала источник выдаёт в среднем.</td></tr>
+    <tr><td><b>CRF</b></td><td>фактор возврата капитала: переводит разовый CAPEX в годовой платёж (аннуитет).</td></tr>
+    <tr><td><b>LCOE</b></td><td>приведённая цена киловатт-часа от источника — «линейка» для сравнения с тарифом.</td></tr>
+    <tr><td><b>Баланс энергии</b></td><td>приход (генерация, разряд, импорт) = расход (нагрузка, заряд, сброс) каждый час.</td></tr>
+    <tr><td><b>SoC</b></td><td>состояние заряда АКБ; меняется на заряд минус разряд, цикл за период замкнут.</td></tr>
+    <tr><td><b>Сброс излишка (curtailment)</b></td><td>лишняя генерация, которую некуда деть; продажу в сеть в базовой модели не закладывают.</td></tr>
+    <tr><td><b>Самообеспечение</b></td><td>доля спроса, закрытая своими источниками (всё, кроме импорта из сети).</td></tr>
+    <tr><td><b>Анализ чувствительности</b></td><td>перерешение задачи при разных ценах, чтобы увидеть, как меняется оптимум.</td></tr>
+  </table>
+</section>
+
+</main>
+
+<footer class="wrap">
+  Разбор системного занятия по оптимизации гибридной энергосистемы (СП + ВЭУ + АКБ). 
+</footer>
+
+</body>
+</html>
